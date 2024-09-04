@@ -43,13 +43,15 @@ def extract_answer_gsm8k(completion):
 def is_correct_gsm8k(model_completion, gt_example):
     gt_answer = extract_answer_gsm8k(gt_example)
     assert gt_answer != INVALID_ANS_GSM8k
-    return extract_answer_gsm8k(model_completion) == gt_answer
+    model_answer = extract_answer_gsm8k(model_completion)
+    return model_answer == gt_answer or is_equiv(model_answer, gt_answer)
 
 
 def is_correct_minerva(og_pred, gt):
     pred = normalize_final_answer(get_unnormalized_answer(og_pred))
     gt = normalize_final_answer(remove_boxed(last_boxed_only_string(gt)))
-    return is_equiv(pred, gt)
+    # string equality check needed because of https://github.com/EleutherAI/lm-evaluation-harness/issues/2212
+    return pred == gt or is_equiv(pred, gt)
 
 
 class ScriptConfig(EvaluateScriptConfig):
